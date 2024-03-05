@@ -6,11 +6,50 @@ include '../dados/conexao.php';
 
 // Adicione o código de autenticação e verificação de admin aqui
 $usuarioAutenticado = isset($_SESSION['usuario_id']);
-$usuarioAdmin = true; // Adicione sua lógica real para verificar se o usuário é um admin
 
-// Se o usuário não for admin, redirecione para a página principal
+if ($usuarioAutenticado) {
+    // Use prepared statement para evitar SQL injection
+    $usuario_id = $_SESSION['usuario_id'];
+    $consulta = "SELECT permissao FROM usuarios WHERE id = ?";
+
+    try {
+        $stmt = $conn->prepare($consulta);
+        $stmt->bind_param("i", $usuario_id);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+
+        if (!$resultado) {
+            throw new Exception("Erro ao executar a consulta: " . $stmt->error);
+        }
+
+        if ($resultado->num_rows > 0) {
+            $row = $resultado->fetch_assoc();
+            $permissao = $row['permissao'];
+
+            // Lógica para verificar se o usuário é admin
+            $usuarioAdmin = ($permissao === 'admin');
+        } else {
+            // Trate o caso em que não há informações sobre a permissão do usuário
+            // Pode ser um erro ou um estado não esperado
+            // Você pode redirecionar o usuário ou tomar outras medidas necessárias
+            header("Location: ../acesso_negado.php");
+            exit();
+        }
+
+        // Fechar o statement após o uso
+        $stmt->close();
+    } catch (Exception $e) {
+        die("Erro: " . $e->getMessage());
+    }
+} else {
+    // Se o usuário não estiver autenticado, redirecione para a página de acesso negado
+    header("Location: ../acesso_negado.php");
+    exit();
+}
+
+// Se o usuário não for admin, redirecione para a página de acesso negado
 if (!$usuarioAdmin) {
-    header("Location: ../index.php");
+    header("Location: ../acesso_negado.php");
     exit();
 }
 
@@ -22,6 +61,7 @@ $resultUsuarios = $conn->query($sqlUsuarios);
 $sqlLojas = "SELECT id, nome_loja, categorias FROM vendedores";
 $resultLojas = $conn->query($sqlLojas);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="pt-br">

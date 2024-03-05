@@ -7,11 +7,22 @@ if (!isset($_SESSION['usuario_id'])) {
     exit();
 }
 
+// Incluir o arquivo de conexão
+include '../dados/conexao.php';
+
+// Verificar se o usuário já é um vendedor
+$usuario_id = $_SESSION['usuario_id'];
+$consultaVendedor = "SELECT * FROM vendedores WHERE usuario_id = $usuario_id";
+$resultadoVendedor = $conn->query($consultaVendedor);
+
+// Se o usuário já for um vendedor, redirecione
+if ($resultadoVendedor->num_rows > 0) {
+    header("Location: ja_tem_loja.php"); // Altere para o local desejado
+    exit();
+}
+
 // Processar os dados do formulário quando enviado
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Incluir o arquivo de conexão
-    include '../dados/conexao.php';
-
     // Validar e escapar os dados recebidos do formulário
     $nomeLoja = htmlspecialchars($_POST["nome_loja"]);
     $categorias = htmlspecialchars($_POST["categorias"]);
@@ -19,14 +30,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Inserir os dados na tabela vendedores
     $sqlInserirVendedor = "INSERT INTO vendedores (usuario_id, nome_loja, categorias) VALUES (?, ?, ?)";
     $stmtInserirVendedor = $conn->prepare($sqlInserirVendedor);
-    $stmtInserirVendedor->bind_param("iss", $_SESSION['usuario_id'], $nomeLoja, $categorias);
+    $stmtInserirVendedor->bind_param("iss", $usuario_id, $nomeLoja, $categorias);
 
     if ($stmtInserirVendedor->execute()) {
         // Atualizar o cargo do usuário para "vendedor" na tabela usuarios
         $novoCargo = "vendedor";
         $sqlAtualizarCargo = "UPDATE usuarios SET permissao = ? WHERE id = ?";
         $stmtAtualizarCargo = $conn->prepare($sqlAtualizarCargo);
-        $stmtAtualizarCargo->bind_param("si", $novoCargo, $_SESSION['usuario_id']);
+        $stmtAtualizarCargo->bind_param("si", $novoCargo, $usuario_id);
         $stmtAtualizarCargo->execute();
 
         // Redirecionar para alguma página de sucesso
@@ -39,10 +50,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Fechar as declarações preparadas
     $stmtInserirVendedor->close();
     $stmtAtualizarCargo->close();
-
-    // Fechar a conexão
-    $conn->close();
 }
+
+// Fechar a conexão
+$conn->close();
 ?>
 
 <!DOCTYPE html>

@@ -32,11 +32,9 @@ if ($usuarioAutenticado) {
 
             // Lógica para verificar se o usuário é admin
             $usuarioAdmin = ($permissao === 'admin');
-
-            // Se o usuário não for admin, você pode realizar ações adicionais aqui se necessário
-
-            // Não há mais lógica de redirecionamento para a página de acesso negado
         } else {
+            // Trate o caso em que não há informações sobre a permissão do usuário
+            // Pode ser um erro ou um estado não esperado
             // Você pode redirecionar o usuário ou tomar outras medidas necessárias
         }
 
@@ -145,12 +143,54 @@ if ($usuarioAutenticado) {
         <a href="produtos.php" class="nav-link">Produtos</a>
     </nav>
 
-    <h1>Olá! Seja bem-vindo a nossa página!</h1>
-    <p>Desenvolvedores:</p>
+    <div class="container mt-5">
+        <h2>Detalhes do Produto</h2>
 
-    <a href="https://github.com/PedroSawczuk">Pedro Sawczuk</a>
-    <a href="">Reginaldo Júnior</a>
-    <a href="https://github.com/ruthynathyelle">Ruthy Nathyelle</a>
+        <?php
+        // Verifique se o ID do produto foi passado via parâmetro GET
+        if (isset($_GET['id'])) {
+            $produto_id = $_GET['id'];
+
+            // Consulta para obter informações do produto específico
+            $consultaProduto = "SELECT * FROM produtos WHERE id = ?";
+
+            try {
+                $stmt = $conn->prepare($consultaProduto);
+                $stmt->bind_param("i", $produto_id);
+                $stmt->execute();
+                $resultado = $stmt->get_result();
+
+                if ($resultado->num_rows > 0) {
+                    $produto = $resultado->fetch_assoc();
+
+                    // Exibir informações do produto
+                    echo '<p><strong>Nome:</strong> ' . $produto['nome'] . '</p>';
+                    echo '<p><strong>Valor:</strong> ' . $produto['valor'] . '</p>';
+
+                    // Verifica se o campo 'preco' existe antes de exibi-lo
+                    if (isset($produto['preco'])) {
+                        echo '<p><strong>Preço:</strong> ' . $produto['preco'] . '</p>';
+                    }
+
+                    // Verifica se o campo 'vendedor' existe antes de exibi-lo
+                    if (isset($produto['vendedor'])) {
+                        echo '<p><strong>Vendedor:</strong> ' . $produto['vendedor'] . '</p>';
+                    }
+                } else {
+                    echo '<p>Produto não encontrado.</p>';
+                }
+
+                // Fechar o statement após o uso
+                $stmt->close();
+            } catch (Exception $e) {
+                die("Erro: " . $e->getMessage());
+            }
+        } else {
+            echo '<p>ID do produto não especificado.</p>';
+        }
+        ?>
+
+    </div>
 
 </body>
 

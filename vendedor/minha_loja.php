@@ -25,7 +25,7 @@ if ($resultadoVendedor->num_rows > 0) {
     $resultadoProdutos = $conn->query($consultaProdutos);
 } else {
     // Redirecione ou exiba uma mensagem de erro, pois o usuário não é um vendedor
-    header("Location: ../index.php");
+    header("Location: acesso_negado_loja.php");
     exit();
 }
 ?>
@@ -89,7 +89,6 @@ if ($resultadoVendedor->num_rows > 0) {
                             <td>
                                 <a href="editar_produto.php?id=<?php echo $produto['id']; ?>" class="btn btn-warning btn-sm">Editar</a>
                             </td>   
-
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
@@ -102,8 +101,8 @@ if ($resultadoVendedor->num_rows > 0) {
 
     <!-- Botão para adicionar produto -->
     <a href="criar_produto.php" class="btn btn-primary">Adicionar Produto</a>
-
-    <!-- Adicione outros elementos HTML conforme necessário -->
+        
+    <a href="../index.php" class="btn btn-warning">Voltar a Página Inicial</a>
 
     <!-- Adicione os scripts Bootstrap necessários -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

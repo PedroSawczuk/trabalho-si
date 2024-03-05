@@ -34,7 +34,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Configuração para upload de imagem
     $diretorioImagens = "../media/produtos/{$nomeLoja}/fotos/";
-    $nomeArquivo = $_FILES['foto']['name'];
+
+    // Contar quantos produtos já existem para determinar o próximo número
+    $contadorProdutos = count(glob($diretorioImagens . "produto-*"));
+
+    // Incrementar o contador para obter o próximo número
+    $proxNumeroProduto = $contadorProdutos + 1;
+
+    $nomeArquivoOriginal = $_FILES['foto']['name'];
+    $extensao = pathinfo($nomeArquivoOriginal, PATHINFO_EXTENSION);
+    $nomeArquivo = "produto-$proxNumeroProduto.$extensao"; // Nome do arquivo com prefixo "produto-" e sufixo numérico
+
     $caminhoCompleto = $diretorioImagens . $nomeArquivo;
 
     // Certifique-se de que o vendedor (usuario_id) existe na tabela vendedores
