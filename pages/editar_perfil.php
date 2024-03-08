@@ -1,132 +1,85 @@
 <?php
-session_start();
+// Incluir conexão com o banco de dados
+include_once '../dados/conexao.php';
 
-// Inclua o arquivo de conexão
-include '../dados/conexao.php';
+// Verificar se o parâmetro 'usuario_id' foi enviado via GET
+if (isset($_GET['usuario_id']) && !empty($_GET['usuario_id'])) {
+    $usuario_id = $_GET['usuario_id'];
 
-// Verifique se o usuário está autenticado
-if (!isset($_SESSION['usuario_id'])) {
-    header("Location: ../index.php");
-    exit();
-}
+    // Consultar dados do usuário pelo ID
+    $queryUsuario = "SELECT * FROM usuarios WHERE id = $usuario_id";
+    $resultUsuario = $conn->query($queryUsuario);
 
-// Verifique se um usuário específico foi solicitado
-if (!isset($_GET['usuario_id']) || !is_numeric($_GET['usuario_id'])) {
-    header("Location: ../index.php");
-    exit();
-}
-
-$usuario_id = $_GET['usuario_id'];
-
-// Verifique se o usuário tem permissão para editar este perfil (adicione sua lógica aqui)
-$usuarioAdmin = true; // Adicione sua lógica real para verificar se o usuário é um admin
-
-if (!$usuarioAdmin) {
-    // Redirecione ou exiba uma mensagem de erro, pois o usuário não tem permissão
-    echo "Você não tem permissão para editar este perfil.";
-    exit();
-}
-
-// Verifique se o formulário foi enviado e se a chave 'novo_cargo' existe no array $_POST
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['novo_cargo'])) {
-    // Processar o formulário de edição aqui
-
-    // Exemplo de atualização do cargo
-    $novoCargo = $_POST['novo_cargo'];
-    $sqlAtualizarCargo = "UPDATE usuarios SET permissao = '$novoCargo' WHERE id = $usuario_id";
-    
-    if ($conn->query($sqlAtualizarCargo) === TRUE) {
-        echo "Permissão atualizada com sucesso!";
+    if ($resultUsuario->num_rows > 0) {
+        $usuario = $resultUsuario->fetch_assoc();
     } else {
-        echo "Erro ao atualizar permissão: " . $conn->error;
-    }
-
-    // Exemplo de exclusão de perfil e referências em tabelas relacionadas
-    $conn->begin_transaction(); // Inicia uma transação para garantir consistência nos dados
-
-    $sqlExcluirLoja = "DELETE FROM vendedores WHERE usuario_id = $usuario_id";
-    if (!$conn->query($sqlExcluirLoja)) {
-        echo "Erro ao excluir loja: " . $conn->error;
-        $conn->rollback(); // Desfaz a transação em caso de erro
-        exit();
-    }
-
-    $sqlExcluirPerfilUsuario = "DELETE FROM usuarios WHERE id = $usuario_id";
-    if ($conn->query($sqlExcluirPerfilUsuario)) {
-        echo "Perfil excluído com sucesso!";
-        $conn->commit(); // Confirma a transação se tudo estiver correto
-        exit();
-    } else {
-        echo "Erro ao excluir perfil: " . $conn->error;
-        $conn->rollback(); // Desfaz a transação em caso de erro
-        exit();
-    }
-}
-
-// Consulta SQL para obter informações do usuário
-$sqlUsuario = "SELECT id, username, email, permissao, data_cadastro FROM usuarios WHERE id = $usuario_id";
-$resultUsuario = $conn->query($sqlUsuario);
-
-if ($resultUsuario->num_rows > 0) {
-    $usuario = $resultUsuario->fetch_assoc();
-
-    // Verificar se é vendedor e obter informações adicionais
-    if ($usuario['permissao'] === 'vendedor') {
-        $sqlLoja = "SELECT nome_loja FROM vendedores WHERE usuario_id = $usuario_id";
-        $resultLoja = $conn->query($sqlLoja);
-
-        if ($resultLoja->num_rows > 0) {
-            $infoLoja = $resultLoja->fetch_assoc();
-            $nomeLoja = $infoLoja['nome_loja'];
-        } else {
-            $nomeLoja = "N/A";
-        }
-    } else {
-        $nomeLoja = "N/A";
+        echo "Usuário não encontrado.";
+        exit;
     }
 } else {
-    // Se o usuário não for encontrado, redirecione ou exiba uma mensagem de erro
-    header("Location: ../index.php");
-    exit();
+    echo "ID do usuário não especificado.";
+    exit;
+}
+
+// Verificar se o formulário foi submetido
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Obter os dados do formulário
+    $novoNome = $_POST['nome'];
+    $novoEmail = $_POST['email'];
+    $novaPermissao = $_POST['permissao'];
+
+    // Atualizar os dados do usuário no banco de dados
+    $queryUpdate = "UPDATE usuarios SET username = '$novoNome', email = '$novoEmail', permissao = '$novaPermissao' WHERE id = $usuario_id";
+    if ($conn->query($queryUpdate) === TRUE) {
+        // Redirecionar de volta para a página admin.php após a atualização
+        header("Location: admin.php");
+        exit;
+    } else {
+        echo "Erro ao atualizar o perfil: " . $conn->error;
+    }
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Perfil</title>
-    <!-- Adicione os estilos CSS necessários aqui -->
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
 </head>
 
 <body>
+    <button><a href="admin.php" class="btn btn-danger">Cancelar</a></button>
 
-    <h2>Editar Perfil</h2>
+    <div class="container">
+        <h2 class="mt-5">Editar Perfil</h2>
+        <form class="mt-4" method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]) . '?usuario_id=' . $usuario_id; ?>">
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text" class="form-control" name="nome" value="<?php echo $usuario['username']; ?>">
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" name="email" value="<?php echo $usuario['email']; ?>">
+            </div>
+            <div class="form-group">
+                <label for="permissao">Permissão:</label>
+                <select class="form-control" name="permissao">
+                    <option value="Cliente" <?php if ($usuario['permissao'] == 'Cliente') echo 'selected="selected"'; ?>>Cliente</option>
+                    <option value="Vendedor" <?php if ($usuario['permissao'] == 'Vendedor') echo 'selected="selected"'; ?>>Vendedor</option>
+                    <option value="Admin" <?php if ($usuario['permissao'] == 'Admin') echo 'selected="selected"'; ?>>Admin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Fazer Mudanças</button>
+        </form>
+    </div>
 
-    <form method="post" action="">
-        <label for="cargo">Nova Permissão:</label>
-        <input type="text" id="cargo" name="novo_cargo" value="<?php echo $usuario['permissao']; ?>" required>
-
-        <button type="submit">Atualizar Permissão</button>
-    </form>
-
-    <form method="post" action="">
-        <button type="submit">Excluir Perfil</button>
-    </form>
-
-    <h3>Informações do Perfil:</h3>
-    <p><strong>Nome:</strong> <?php echo $usuario['username']; ?></p>
-    <p><strong>Email:</strong> <?php echo $usuario['email']; ?></p>
-    <p><strong>Data de Criação:</strong> <?php echo $usuario['data_cadastro']; ?></p>
-    
-    <?php if ($usuario['permissao'] === 'vendedor'): ?>
-        <p><strong>Nome da Loja:</strong> <?php echo $nomeLoja; ?></p>
-    <?php endif; ?>
-
-    <!-- Adicione outros elementos HTML conforme necessário -->
-
+    <!-- Adicione a referência ao Bootstrap JS (opcional, se necessário para funcionalidades específicas do Bootstrap) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
 </html>

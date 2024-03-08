@@ -5,11 +5,20 @@ session_start();
 // Inclua o arquivo de conexão
 require_once "dados/conexao.php";
 
-// Consulta para obter informações dos produtos
-$consultaProdutos = "SELECT * FROM produtos";
-$resultadoProdutos = $conn->query($consultaProdutos);
+// Verifica se foi feita uma pesquisa
+if (isset($_GET['pesquisa'])) {
+    // Limpeza da entrada da pesquisa para evitar injeção de SQL
+    $termo_pesquisa = mysqli_real_escape_string($conn, $_GET['pesquisa']);
+    
+    // Consulta SQL para recuperar apenas os produtos que correspondem à pesquisa
+    $consultaProdutos = "SELECT * FROM produtos WHERE nome LIKE '%$termo_pesquisa%'";
+    $resultadoProdutos = $conn->query($consultaProdutos);
+} else {
+    // Consulta para obter informações dos produtos
+    $consultaProdutos = "SELECT * FROM produtos";
+    $resultadoProdutos = $conn->query($consultaProdutos);
+}
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -117,6 +126,12 @@ $resultadoProdutos = $conn->query($consultaProdutos);
 
 <section id="produtos">
     <h2>Produtos Disponíveis</h2>
+    
+    <!-- Formulário de pesquisa -->
+    <form method="GET" action="produtos.php">
+        <input type="text" name="pesquisa" placeholder="Pesquisar produtos...">
+        <button type="submit">Pesquisar</button>
+    </form>
 
     <?php
     if ($resultadoProdutos->num_rows > 0) {

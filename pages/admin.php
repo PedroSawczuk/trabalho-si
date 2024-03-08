@@ -77,6 +77,9 @@ $resultLojas = $conn->query($sqlLojas);
 
 <body class="container mt-5">
 
+    <button><a href="../index.php" class="btn btn-primary">Voltar</a></button>
+
+
     <h2>Administração</h2>
 
     <h3>Usuários</h3>

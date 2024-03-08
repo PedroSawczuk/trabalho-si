@@ -94,6 +94,19 @@ if ($usuarioAutenticado) {
             background-color: #c0392b;
         }
 
+        a.button-account {
+            text-decoration: none;
+            color: #fff;
+            background-color: #6DE73C;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        a.button-account:hover {
+            background-color: #3CC02B;
+        }
+
         nav {
             background-color: #333;
             padding: 10px 0;
@@ -109,9 +122,6 @@ if ($usuarioAutenticado) {
             transition: background-color 0.3s;
         }
 
-        .nav-link:hover {
-            background-color: #555;
-        }
     </style>
 </head>
 
@@ -121,10 +131,12 @@ if ($usuarioAutenticado) {
         <div class="header-container">
             <h1>Segurança da Informação</h1>
             <?php if ($usuarioAutenticado) : ?>
+
                 <a class="button-header" href="logout.php">Sair</a>
             <?php else : ?>
                 <a class="button-header" href="conta/login.php">Entrar</a>
             <?php endif; ?>
+            <a class="button-account" href="minha_conta.php">Minha Conta</a>
         </div>
     </header>
 
@@ -149,7 +161,7 @@ if ($usuarioAutenticado) {
     <p>Desenvolvedores:</p>
 
     <a href="https://github.com/PedroSawczuk">Pedro Sawczuk</a>
-    <a href="">Reginaldo Júnior</a>
+    <a href="https://github.com/junior2706">Reginaldo Júnior</a>
     <a href="https://github.com/ruthynathyelle">Ruthy Nathyelle</a>
 
 </body>
