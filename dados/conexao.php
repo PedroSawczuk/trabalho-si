@@ -1,6 +1,5 @@
 <?php
-// dados/conexao.php
-$servername = "localhost:3300"; // Corrigido o número da porta padrão do MySQL para 3306
+$servername = "localhost:3300"; 
 $database = "trabalho_si";
 $username = "root";
 $password = "alunoifro";
