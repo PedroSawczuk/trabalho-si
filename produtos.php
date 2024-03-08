@@ -141,8 +141,6 @@ if (isset($_GET['pesquisa'])) {
             echo '<p><strong> ' . $produto['nome'] . '</strong></p>';
             echo '<p><strong> ' . 'R$' . $produto['valor'] . '</strong></p>';
             
-            // Restante do código...
-
             echo '</div>';
         }
     } else {
