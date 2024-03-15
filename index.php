@@ -122,6 +122,34 @@ if ($usuarioAutenticado) {
             transition: background-color 0.3s;
         }
 
+        .welcome {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 60vh;
+            flex-direction: column;
+        }
+
+        a {
+            color: #000000;
+            padding: .5em 0;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #2C4661;
+            text-decoration: underline;
+        }
+
+        .code {
+            color: #3498db;
+            padding: .5em 0;
+            font-weight: bold;
+            font-family: 2em;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
     </style>
 </head>
 
@@ -157,12 +185,16 @@ if ($usuarioAutenticado) {
         <a href="produtos.php" class="nav-link">Produtos</a>
     </nav>
 
-    <h1>Olá! Seja bem-vindo a nossa página!</h1>
-    <p>Desenvolvedores:</p>
-
-    <a href="https://github.com/PedroSawczuk">Pedro Sawczuk</a>
-    <a href="https://github.com/junior2706">Reginaldo Júnior</a>
-    <a href="https://github.com/ruthynathyelle">Ruthy Nathyelle</a>
+    <div class="welcome">
+        <h1>Olá! Seja bem-vindo a nossa página!</h1>
+        <p>Desenvolvedores:</p>
+        <a target="_blank" href="https://github.com/PedroSawczuk">Pedro Sawczuk</a>
+        <a target="_blank" href="https://github.com/junior2706">Reginaldo Júnior</a>
+        <a target="_blank" href="https://github.com/ruthynathyelle">Ruthy Nathyelle</a>
+        <br>
+        <h2>Código:</h2>
+        <a target="_blank" class="code" href="https://github.com/PedroSawczuk/trabalho-si">Repositório no GitHub</a>
+    </div>
 
 </body>
 
