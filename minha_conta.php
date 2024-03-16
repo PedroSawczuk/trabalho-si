@@ -28,7 +28,7 @@ $conn->close();
 ?>
 
 <!DOCTYPE html>
-<html lang="pt-nt">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -42,7 +42,7 @@ $conn->close();
         <h2>Informações da Conta</h2>
         <div class="card">
             <div class="card-body">
-                
+                <?php
                 echo "<p><strong>Usuário:</strong> " . $row['username'] . "</p>";
                 echo "<p><strong>Email:</strong> " . $row['email'] . "</p>";
                 echo "<p><strong>Permissão:</strong> " . $row['permissao'] . "</p>";
